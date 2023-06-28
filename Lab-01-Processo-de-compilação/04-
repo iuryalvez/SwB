@@ -1,0 +1,2 @@
+man as: as é o assembler, transforma o código assembly em .o;
+man ld: ld é o linker, transforma o .o em linguagem de máquina.

@@ -1,0 +1,1 @@
+2- Normalmente quando invocamos o GCC ele faz pré-processamento, assembly e linking.

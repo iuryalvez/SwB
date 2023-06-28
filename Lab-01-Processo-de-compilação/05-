@@ -1,0 +1,3 @@
+Parar processo logo após pré-processamento: -E;
+Parar o processo logo após gerar as instruções assembly (e antes de compilar): -S;
+Parar o processo logo depois de compilar e antes de gerar o executável: -c;
