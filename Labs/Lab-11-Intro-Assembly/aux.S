@@ -53,16 +53,16 @@ aux:
     # Seu código aqui...
 
     # j = 68000;
-    j:  .movl $68000, j
+    movl $68000, j
 
     # l = 4096;
-    l:  .movq $4096, l
+    movq $4096, l
 
     # i = j;
     movl    j, %eax
     movl    %eax, i
 
-    # j = 10 + i - 5;
+    # j = 10 + i - 5
     movl    i, %eax
     addl    $10, %eax
     subl    $5, %eax    
@@ -73,17 +73,37 @@ aux:
     imull   $2, %ecx
     movl    j, %edx
     addl    $5, %edx
-    
     subl    %edx, %ecx
     movl    %ecx, i
 
-    # ui = i;
+    # ui = i --- unsigned pra signed
     movl    i, %eax
     movl    %eax, ui
 
-    # j = c;
+    # j = c --- signed pra unsigned
     movsbl  c, %edx
     movl    %edx, i
+
+    # ul = ui --- truncamento
+    movl    ul, %eax
+    movl    %eax, ui 
+
+    # c = i + j --- extensão do i para long
+    movslq  i, %rax
+    movq    j, %rcx
+    addq    %rax, %rcx
+    movb    %cl, c
+
+    # long *ptr = &l
+    movq    $l, %r8
+    movq    $128, (%r8)
+
+    # int iptr = &i 
+    movq    $i, %r9
+    movq    j, %rax
+    movslq  (%r9), %rcx
+    addq    %rcx, %rax
+    movq    %rax, j
 
     leave
 
