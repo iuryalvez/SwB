@@ -1,3 +1,7 @@
+.section rodata
+
+fmt: .string "valor: %d\n"
+
 .data
 
 # char c = -20;
@@ -52,23 +56,23 @@ aux:
 
     # Seu código aqui...
 
-    # j = 68000;
-    movl $68000, j
+    # j = 68000
+    movl    $68000, j
 
-    # l = 4096;
-    movq $4096, l
+    # l = 4096
+    movq    $4096, l
 
-    # i = j;
+    # i = j // i = 68000
     movl    j, %eax
     movl    %eax, i
 
-    # j = 10 + i - 5
+    # j = 10 + i - 5 // j = 10 + 6800 - 5 = 6795
     movl    i, %eax
     addl    $10, %eax
     subl    $5, %eax    
     movl    %eax, j
 
-    # i = (i * 2) - (j + 5);
+    # i = (i * 2) - (j + 5) // i = (68000 * 2) - (6795 + 5) = 68000
     movl    i, %ecx
     imull   $2, %ecx
     movl    j, %edx
@@ -76,34 +80,40 @@ aux:
     subl    %edx, %ecx
     movl    %ecx, i
 
-    # ui = i --- unsigned pra signed
+    # ui = i --- unsigned pra signed // ui = 68000
     movl    i, %eax
     movl    %eax, ui
 
-    # j = c --- signed pra unsigned
+    # j = c --- signed pra unsigned // j = -20
     movsbl  c, %edx
-    movl    %edx, i
+    movl    %edx, j
 
-    # ul = ui --- truncamento
-    movl    ul, %eax
-    movl    %eax, ui 
+    # ul = ui --- truncamento unsigned pra signed // ul = 1024
+    movl    ui, %eax
+    movq    %rax, ul 
 
-    # c = i + j --- extensão do i para long
-    movslq  i, %rax
-    movq    j, %rcx
-    addq    %rax, %rcx
-    movb    %cl, c
+    # us = ul // us = 1024
+    movq    ul, %rax
+    movw    %ax, us
+
+    # c = i + j // c = 68000 + (-20) = 67980
+    movl    i, %eax
+    movl    j, %ecx
+    addl    %ecx, %eax
+    movb    %al, c
 
     # long *ptr = &l
     movq    $l, %r8
-    movq    $128, (%r8)
+    movq    $128, (%r8) # *ptr = l = 128 
 
     # int iptr = &i 
     movq    $i, %r9
-    movq    j, %rax
-    movslq  (%r9), %rcx
-    addq    %rcx, %rax
-    movq    %rax, j
+
+    # j = j + *iptr
+    movl    j, %eax
+    movl    (%r9), %ecx
+    addl    %ecx, %eax
+    movl    %eax, j # j = j + *iptr
 
     leave
 

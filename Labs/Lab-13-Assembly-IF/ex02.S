@@ -12,48 +12,47 @@ b:  .quad 2
 
 .text
 
-.globl ex01
 .globl ex02
-.globl endif01
-.globl endif02
-
-ex01:
-
-   pushq %rbp
-
-   movq  %rsp, %rbp
-
-   # Seu código aqui... esqueci _de anotar
-
 ex02: 
-    cmpl $0, a 
+
+    pushq   %rbp
+    movq    %rsp, %rbp
+    
+    # _if (a)
+    cmpl    $0, a 
     je endif01
     
-    cmpq %5, b
+    # _if (b menor q 5)
+    cmpq    $5, b
     jge else02
 
-    movl a, %eax
-    shll $1, %eax
+    # a shiftado 1 vez pra esquerda
+    movl    a, %eax
+    shll    $1, %eax
 
-    movslq a, %rcx
-    imulq b, %rcx
+    # a * b
+    movslq  a, %rcx
+    imulq   b, %rcx
 
-    movslq %eax, %rax
-    addq %rcx, %rax
-    movq %rax, b
+    # somando os dois anteriores
+    movslq  %eax, %rax
+    addq    %rcx, %rax
+
+    # b = tudo isso
+    movq    %rax, b
 
     jmp endif02
 
 else02:
-    movabs $0x1F, %rcx
-
-    movq b, %rdx
-    xorq %rcx, %rdx
-    movl %edx, a
+    movabs  $0x1F, %rcx # movendo absoluto _de 64bits
+    # a = b ^ 0x1FL
+    movq    b, %rdx
+    xorq    %rcx, %rdx
+    movl    %edx, a
 
 endif02:
 
 endif01:
-   leave
 
+   leave
    ret

@@ -21,14 +21,11 @@ c:  .long -60
 # int d = 25
     .globl d
     .align 4
-d:  .int 25
+d:  .long 25
 
 .text
 
 .globl ex01
-.globl endif01
-.globl endif02
-
 ex01:
 
     pushq %rbp 
@@ -37,29 +34,46 @@ ex01:
 
     # Seu código aqui...
         
-    movl a, %eax
-    cmpl b, %eax
+    movl    a, %eax
+    movl    b, %ecx
+    cmpl    %ecx, %eax
     jle endif01
 
     # c = -c
-    negl c 
+    movl    c, %eax
+    negl %eax
 
-    movl c, %ecx 
-    imull $3, %ecx 
-    movl %ecx, d
+    # d = c / 3
+    movl    c, %edi
+    movl    $3, %ecx
+    movl    %edi, %eax
+    cltd            # extensão do sinal do eax
+    idivl   %ecx    # divisor 
+
+    movl    %eax, d 
 
 endif01:
 
-    movl b, %edx
-    cmpl a, %edx
+    movl    b, %edx
+    movl    a, %eax
+    cmpl    %eax, %edx
     jl endif02
 
     # c = (a + b) * c
-    movl a, %eax   # Move o valor de 'a' para o registrador %eax
-    addl b, %eax   # Adiciona o valor de 'b' ao valor de %eax
-    imull c, %eax  # Multiplica o valor de %eax pelo valor de 'c'
-    movl %eax, c   # Move o resultado da multiplicação para 'c'
-    movl $1024, d  # Move o valor 1024 para 'd'
+    # a + b
+    movl    a, %eax
+    movl    b, %ecx
+    addl    %ecx, %eax
 
+    # (a+b) * c
+    movl    c, %ecx
+    imull   %ecx, %eax
+    movl    %eax, c   
+    
+    # d = 1024
+    movl    $1024, d
 
 endif02: 
+
+    leave
+    ret

@@ -19,11 +19,9 @@ process:
 
    # ptr = str
 
-
-
 beginwhile:
 
-    cmpb $0, (%r8)
+    cmpb $0, (%r8) # _cmp = (%r8) - 0
 
     je endwhile            # while() {
         
