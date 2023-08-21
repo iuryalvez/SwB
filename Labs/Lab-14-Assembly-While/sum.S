@@ -24,23 +24,23 @@ sum:
     # while () {
 while01:
     cmpl    $4, %ecx
-    jge     fim_while01
+    jge     end_while01
 
+    # acessando array
     movq    $nums, %rdx # pegando o ponteiro do nums
     movslq  %ecx, %r8   # alargando o int para 8 bytes (ponteiro)
     imulq   $4, %r8     # sizeof int * i
-    addq    %r8, %rcx   # endereço do nums + r8
+    addq    %r8, %rdx   # endereço do nums + r8
 
     movl    (%rdx), %eax
-    addl    s, %eax
-    movl    %eax, s
+    addl    %eax, s 
 
     # i++
     incl    %ecx
 
     jmp while01
 
-fim_while01:
+end_while01:
 
     leave
 

@@ -8,9 +8,7 @@ void swap() {
 
     int j = 4;
 
-    for (i = 0; i < j; i++, j--)
-
-    {
+    for (i = 0; i < j; i++, j--) {
 
         long tmp = values[i];
 
