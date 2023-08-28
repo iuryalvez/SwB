@@ -1,91 +1,88 @@
-# gcc -no-pie -o sum main1.c sum.S
-
 .section .rodata
 
-    fmt: "Soma %f maior que o limite %f (%d)\n"
-
-    # declarar o double (float também) como constante
+    # Constante 0.0
     .align 8
-        sz: .double 0.0
-
-.data
+    C0: .double 0.0
+    fmt: .string "Soma %f maior que o limite %f (%d)\n"
 
 .text
 
-    .globl sum
-    sum: 
-        # tem um parâmetro double (xmm0)
-        pushq   %rbp
-        movq    %rsp, %rbp
+.globl sum
+sum:
 
-        # valor total _de memória _a ser utilizada
-        subq    $80, %rsp
+    pushq %rbp
+    movq %rsp, %rbp
 
-        # int i = 4
-        movl    $4, -4(%rbp)
+    # rbx -> -8 (i)
+    # xmm0 -> -16 (limit)
+    # xmm1 -> -24 (s)
+    # vi -> -40
+    # vd -> -72
+    
+    subq $80, %rsp
+    
+    movq %rbx, -8(%rbp) # salva rbx
+    movl $4, %ebx # i = 4
+    
+    movsd C0, %xmm1 # s = 0.0
+    
+    movl $5, -40(%rbp) # vi[0] = 5
+    
+    movl $6, -36(%rbp) # vi[1] = 6
+    
+    movl $7, -32(%rbp) # vi[2] = 7
+    
+    movl $8, -28(%rbp) # vi[3] = 8
+    
+    movsd %xmm0, -16(%rbp) # salva limit
+    movsd %xmm1, -24(%rbp) # salva s
+    leaq -40(%rbp), %rdi # 1o. param: &vi
+    leaq -72(%rbp), %rsi # 2o. param: &vd
+    movl %ebx, %edx # 3o. param: i
+    
+    call mult
+    
+    movsd -16(%rbp), %xmm0 # recupera limit
+    movsd -24(%rbp), %xmm1 # recupera s
+    
+    begin_while:
+    cmpl $0, %ebx # if (i <= 0) -> end_while
+    jle end_while
+    
+    decl %ebx # i--
+    
+    leaq -72(%rbp), %r8 # r8 = &vd
+    movslq %ebx, %r9 # r9 = (long)i
+    imulq $8, %r9 # r9 = r9 * sizeof(long)
+    addq %r8, %r9 # r9 = &vd[i]
+    addsd (%r9), %xmm1 # s = s + vd[i]
 
-        # double s = 0.0
-        movq    sz, -16(%rbp)
-
-        # salvando vetor vi
-        movl    $8, -20(%rbp)
-        movl    $7, -24(%rbp)
-        movl    $6, -28(%rbp)
-        movl    $5, -32(%rbp)
-
-        movsd   %xmm0, -72(%rbp) # salvando meu primeiro parâmetro
-
-        # passando os parâmetros _da mult
-        leaq    -32(%rbp), %rdi
-        leaq    -64(%rbp), %rsi
-        movl    -4(%rbp), %edx
-
-        call mult
-
-        movsd   -72(%rbp), %xmm0
-
-        while01:
-            compl   $0, -4(%rbp) # 0 - i = ?
-            jle     end_while01  # se i for menor ou igual _a 0 pula pro end
-
-            # i--
-            decl    -4(%rbp)
-
-            # acessando vetor
-            leaq    -64(%rbp), %r8
-            movlsq  -4(%rbp), %r9
-            imulq   $8, %r9
-            addq    %r9, %r8
-
-            # s += vd[--i]
-            movsd   (%r8), %xmm1
-            movsd   -16(%rbp), %xmm2
-            addsd   %xmm1, %xmm2
-            movsd   %xmm2, -16(%rbp)
-
-            # if (s > limit)
-            # xmm1 -> limit
-            # xmm2 -> s 
-            ucomisd %xmm1, %xmm2
-            jbe     end_if01
-
-            # salvando limit
-            movsd   %xmm0, -72(%rbp)
-
-            movq    $fmt, %rdi
-            movsd   %xmm0, %xmm1
-            movsd   -16(%rbp), %xmm0
-            movl    -4(%rbp), %esi
-            movl    $2, %eax
-            call printf
-
-            movsd   -72(%rbp), %xmm0
-            
-            end_if01:
-
-            jmp     while 01
-
-        end_while01:
-
-        leave
-        ret
+    ucomisd %xmm0, %xmm1
+    jp end_if
+    jbe end_if # if (s <= limit) -> end_if
+    
+    movsd %xmm0, -16(%rbp) # salva limit
+    movsd %xmm1, -24(%rbp) # salva s
+    movq $fmt, %rdi # 1o. param inteiro: string
+    movsd %xmm1, %xmm0 # 1o. param Floating-Point: s
+    movsd -16(%rbp), %xmm1 # 2o. param FP: (double)limit
+    movl %ebx, %esi # 2o. param inteiro: i
+    movl $2, %eax # Vai imprimir 2 FP (s e limit)
+    
+    call printf
+    
+    movsd -16(%rbp), %xmm0 # recupera limit
+    movsd -24(%rbp), %xmm1 # recupera s
+    
+    end_if:
+    
+    jmp begin_while
+    
+    end_while:
+    
+    movsd %xmm1, %xmm0 # return s
+    movq -8(%rbp), %rbx # recupera rbx
+    
+    leave
+    ret
+    

@@ -1,27 +1,16 @@
-# gcc -no-pie -o calc1 main1.c calc1.S
-
-.section rodata
-
-.data
-
 .text
 
-    .globl calc1
-    calc1:
-        pushq   %rbp
-        movq    %rsp, %rbp
-
-        # return (a+b)*(a-b)
-        # passar o _a para outro registrador para fazer _a operação
-        cvtssd2sd   %xmm1, %xmm1 # convertendo float p/ double
-        movsd   %xmm0, %xmm10    # salvando o primeiro parâmetro
-
-        # xmm10 = xmm10 + b   # a = a + b     
-        addsd   %xmm1, %xmm10 # a = a + b
-
-        movsd   %xmm0, %xmm11 # salvando o primeiro parâmetro
-        subsd 
-
-
-        leave
-        ret
+.globl calc1
+calc1:
+    
+    pushq %rbp
+    movq %rsp, %rbp
+    
+    cvtss2sd %xmm1, %xmm2 # float b -> double b
+    movsd %xmm2, %xmm3 # xmm3 -> double b
+    addsd %xmm0, %xmm2 # (a+b)
+    subsd %xmm3, %xmm0 # (a-b)
+    mulsd %xmm2, %xmm0 # (%xmm2 = a+b)*(%xmm0 = a-b)
+    
+    leave
+    ret

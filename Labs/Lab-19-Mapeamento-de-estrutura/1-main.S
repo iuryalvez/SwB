@@ -1,3 +1,7 @@
+.section .rodata
+
+    fmt: .string "color: %ld, filled: %d\n"
+
 .data
 
     .globl c1
@@ -12,8 +16,6 @@
 .text
 
     .globl main
-    call main
-
     main:
         
         pushq   %rbp
@@ -30,30 +32,35 @@
         movl    %eax, 4(%r8)
 
         # c1.filled = 1
-        movl    $1, 8(%r8)
+        movb    $1, %r9b
+        movb    %r9b, 8(%r8)
 
-        cmpl    $30, 4(%r8) # if (c1.y > 30) c1.color = RED;
+        movl    4(%r8), %r9d
+        cmpl    $30, %r9d 
         jg  _ifTrue
-        cmpb    $1, 8(%r8) # if (c1.filled == 1) c1.color = RED;
+
+        movb    8(%r8), %r10b
+        cmpb    $1, %r10b
         jne _else
 
         _ifTrue:
 
-            movl    $2, 16(%r8)
+            movq    $2, 16(%r8)
             jmp end_if
 
         _else:
 
-            movl    $1, 16(%r8)
+            movq    $1, 16(%r8)
 
         end_if:
 
             # padrão do printf
             movq    $fmt, %rdi
             movq    16(%r8), %rsi
-            movsbl  8(%r8), %edx
+            movb    8(%r8), %r11b
+            movsbl  %r11b, %edx
 
-            movl    $0, %eax
+            movl    $0, %eax # nao tem ponto flutuante
             call printf
 
             movl    $0, %eax

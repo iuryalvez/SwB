@@ -30,11 +30,7 @@ void init_pins(short pins[2][3]) {
 
 int main() {
 
-    if (find(&g1))
+    if (find(&g1)) printf("Pin encontrado\n");
 
-        printf("Pin encontrado\n");
-
-    else
-
-        printf("Pin não encontrado\n");
+    else printf("Pin não encontrado\n");
 }
